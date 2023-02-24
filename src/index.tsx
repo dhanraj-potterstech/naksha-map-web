@@ -1,6 +1,7 @@
 import React from 'react';
 
 import 'mapbox-gl/dist/mapbox-gl.css';
+import "@fontsource/source-sans-pro"
 import './index.css';
 
 import { createRoot } from 'react-dom/client';

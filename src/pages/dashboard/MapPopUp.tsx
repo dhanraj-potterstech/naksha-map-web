@@ -26,10 +26,10 @@ export default function MapPopUp({ isOpen, feature, onClose, onClickPrev, onClic
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [feature])
     React.useEffect(() => {
-        if (responseData && responseData.data && responseData.data.imagePath) {
+        if (responseData && responseData.data && responseData.data.url) {
             window.pannellum.viewer('panorama', {
                 "type": "equirectangular",
-                "panorama": responseData.data.imagePath,
+                "panorama": responseData.data.url,
                 "autoLoad": true,
             });
         }

@@ -2,7 +2,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const placesApi = createApi({
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://localhost:5000/admin",
+    baseUrl: process.env.REACT_APP_API_ENDPOINT,
     prepareHeaders: (headers, { getState }) => {
       headers.set("Content-Type", "application/json");
       headers.set("Auth", "MIRRORDATA_API_ACCESS");

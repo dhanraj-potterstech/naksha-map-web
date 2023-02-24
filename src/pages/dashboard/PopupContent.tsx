@@ -24,10 +24,10 @@ export default function PopupContent(props: any) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
     React.useEffect(() => {
-        if (responseData && responseData.data && responseData.data.imagePath) {
+        if (responseData && responseData.data && responseData.data.url) {
             window.pannellum.viewer('panorama', {
                 "type": "equirectangular",
-                "panorama": responseData.data.imagePath,
+                "panorama": responseData.data.url,
                 "autoLoad": true,
             });
         }
@@ -48,7 +48,6 @@ export default function PopupContent(props: any) {
                             color='blue.500'
                             size='xl'
                         />
-                        // : <Image src={responseData.data.imagePath} />
                         : <div id="panorama"></div>
                 }
             </Box>

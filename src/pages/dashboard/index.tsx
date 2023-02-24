@@ -1,23 +1,20 @@
 import React from "react";
-import mapboxgl, { LngLatLike } from "mapbox-gl"; // eslint-disable-line import/no-webpack-loader-syntax
+import mapboxgl from "mapbox-gl"; // eslint-disable-line import/no-webpack-loader-syntax
 import MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
 import "@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css";
 
 import { useGetPlacesImagesMutation } from "../../services/places";
 import MapPopUp from "./MapPopUp";
-import PopupContent from "./PopupContent";
 import markerImage from "../../assets/images/marker-circle.png"
-import { Box, VStack } from "@chakra-ui/react";
+import { Box, Heading, Text } from "@chakra-ui/react";
 
 mapboxgl.accessToken =
   "pk.eyJ1IjoiamFuc2Fqb3NlIiwiYSI6ImNrbmlmenZ4NjJ1aWoycGxjdG1qbGhwY2wifQ.waif_7e7ELIHRq8HH7OuVw";
 
 export default function Dashboard() {
   /* ++++++++++ Function State ++++++++++ */
-  // const [lng, setLng] = React.useState(-87.637596);
-  // const [lat, setLat] = React.useState(41.940403);
-  const [lng, setLng] = React.useState(78.5315949);
-  const [lat, setLat] = React.useState(17.3521068);
+  const [lng, setLng] = React.useState(78.47);
+  const [lat, setLat] = React.useState(17.33);
   const [zoom, setZoom] = React.useState(14);
   const [popUpData, setPopUpData] = React.useState({
     showModal: false,
@@ -107,6 +104,7 @@ export default function Dashboard() {
             source: "points",
             layout: {
               "icon-image": "custom-marker",
+              "icon-size": ['interpolate', ['linear'], ['zoom'], 10, 1, 15, 0.5, 20, 0.3],
               // get the title name from the source's "title" property
               "text-field": ["get", "name"],
               "text-font": ["Open Sans Semibold", "Arial Unicode MS Bold"],
@@ -168,12 +166,13 @@ export default function Dashboard() {
   // console.log({ isLoading, isError, responseData, })
   return (
     <>
-      <VStack bg='gray.200' h='100vh' margin='auto' justify='center'>
-        <Box w='96vw' color='black'>
-          Longitude: {lng} | Latitude: {lat} | Zoom: {zoom} | {isLoading ? 'Loading places' : ''}
+      <Box h='100vh'>
+        <Box id="floater" p='4' color='#0096ff' >
+          <Heading size='xl' fontFamily="Source Sans Pro">Potters Map</Heading>
+          <Text>Longitude: {lng} | Latitude: {lat} | Zoom: {zoom} | {isLoading ? 'Loading places' : ''}</Text>
         </Box>
         <Box id="map-container" ref={mapContainer} />
-      </VStack>
+      </Box>
       <MapPopUp
         isOpen={popUpData.showModal}
         feature={popUpData.feature}

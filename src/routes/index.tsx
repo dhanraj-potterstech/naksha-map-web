@@ -15,7 +15,11 @@ const router = createBrowserRouter([
   {
     path: 'dashboard',
     element: <DashboardPage />
-  }
+  },
+  {
+    path: "*",
+    element: <Navigate to="/signin" replace={true} />,
+  },
 ]);
 
 export default router;
