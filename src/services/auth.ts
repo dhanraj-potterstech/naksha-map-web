@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-export const placesApi = createApi({
+export const authApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: process.env.REACT_APP_API_ENDPOINT,
     prepareHeaders: (headers, { getState }) => {
@@ -11,16 +11,9 @@ export const placesApi = createApi({
     },
   }),
   endpoints: (builder) => ({
-    getPlacesImages: builder.mutation({
+    login: builder.mutation({
       query: (body) => ({
-        url: `getPlacesImages`,
-        method: "POST",
-        body,
-      }),
-    }),
-    getSelectedDataById: builder.mutation({
-      query: (body) => ({
-        url: `getSelectedDataById`,
+        url: `login`,
         method: "POST",
         body,
       }),
@@ -30,5 +23,4 @@ export const placesApi = createApi({
 
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
-export const { useGetPlacesImagesMutation, useGetSelectedDataByIdMutation } =
-  placesApi;
+export const { useLoginMutation } = authApi;

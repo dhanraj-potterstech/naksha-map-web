@@ -13,7 +13,7 @@ import {
 } from '@chakra-ui/react';
 import { useNavigate } from "react-router-dom";
 
-import { useLoginMutation } from "../../services/places";
+import { useLoginMutation } from "../../services/auth";
 
 // import { useForm } from "react-hook-form";
 // import { useDispatch, useSelector } from "react-redux";
@@ -50,15 +50,18 @@ export default function SignInPage() {
             } else if (responseData.message) {
                 message = responseData.message
             }
+        } else if (!isError) {
+            message = ''
         }
-        toast({
-            title: 'Login error.',
-            description: message,
-            status: 'error',
-            duration: 9000,
-            isClosable: true,
-        })
-
+        if (message) {
+            toast({
+                title: 'Login error.',
+                description: message,
+                status: 'error',
+                duration: 9000,
+                isClosable: true,
+            })
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isError, responseData])
     /* ---------- Side Effects ---------- */
@@ -81,6 +84,8 @@ export default function SignInPage() {
 
     /* ++++++++++ Function Render Methods ++++++++++ */
     /* ---------- Function Render Methods ---------- */
+
+    // console.log({ isLoggingIn, isError })
     return (
         <Flex
             minH={'100vh'}

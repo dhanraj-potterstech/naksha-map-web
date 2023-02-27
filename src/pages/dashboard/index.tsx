@@ -167,9 +167,9 @@ export default function Dashboard() {
   return (
     <>
       <Box h='100vh'>
-        <Box id="floater" p='4' color='#0096ff' >
-          <Heading size='xl' fontFamily="Source Sans Pro">Potters Map</Heading>
-          <Text>Longitude: {lng} | Latitude: {lat} | Zoom: {zoom} | {isLoading ? 'Loading places' : ''}</Text>
+        <Box position='absolute' top={0} left={0} zIndex={10} m='4' p='1' color='#0096ff' backgroundColor='rgba(176, 147, 147, 0.4)'>
+          <Heading size='lg' fontFamily="Source Sans Pro">Potters Map</Heading>
+          <Text fontSize='xs'>{isLoading ? 'Fetching places' : `${Number(lng).toFixed(2)}, ${Number(lat).toFixed(2)}`}</Text>
         </Box>
         <Box id="map-container" ref={mapContainer} />
       </Box>

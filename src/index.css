@@ -20,14 +20,6 @@ code {
   left: 0;
 }
 
-#floater {
-  position: absolute;
-  width: 100vw;
-  top: 0;
-  left: 0;
-  z-index: 22;
-}
-
 .marker {
   background-color: #ff0220;
   border: 1px solid blue;
