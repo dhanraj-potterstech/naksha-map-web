@@ -59,9 +59,41 @@ export default function Dashboard() {
       setLat(map.current.getCenter().lat.toFixed(4));
       setZoom(map.current.getZoom().toFixed(2));
     });
+
+    const coordinatesGeocoder = function (query: string): any | null {
+      // Match anything which looks like
+      // decimal degrees coordinate pair.
+      const matches = query.match(
+        /^[ ]*(?:Lat: )?(-?\d+\.?\d*)[, ]+(?:Lng: )?(-?\d+\.?\d*)[ ]*$/i
+      );
+      if (!matches) {
+        return null;
+      }
+
+      const coord1 = Number(matches[1]);
+      const coord2 = Number(matches[2]);
+      const geocodes = [];
+      geocodes.push({
+        center: [coord1, coord2],
+        geometry: {
+          type: 'Point',
+          coordinates: [coord1, coord2]
+        },
+        place_name: 'Lat: ' + coord1 + ' Lng: ' + coord2,
+        place_type: ['coordinate'],
+        properties: {},
+        type: 'Feature'
+      });
+
+      return geocodes;
+    };
     const geocoder = new MapboxGeocoder({
       accessToken: mapboxgl.accessToken,
       mapboxgl: mapboxgl,
+      placeholder: 'type lat, lng for co-ordinate search',
+      localGeocoder: coordinatesGeocoder,
+      reverseGeocode: true,
+      marker: true
     })
 
     // add geo coder
