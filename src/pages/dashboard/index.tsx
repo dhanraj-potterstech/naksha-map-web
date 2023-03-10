@@ -13,9 +13,11 @@ mapboxgl.accessToken =
 
 export default function Dashboard() {
   /* ++++++++++ Function State ++++++++++ */
-  const [lng, setLng] = React.useState(78.47);
-  const [lat, setLat] = React.useState(17.33);
-  const [zoom, setZoom] = React.useState(14);
+  const [mapData, setMapData] = React.useState({
+    lng: 78.47,
+    lat: 17.33,
+    zoom: 14
+  })
   const [popUpData, setPopUpData] = React.useState({
     showModal: false,
     feature: null
@@ -30,15 +32,42 @@ export default function Dashboard() {
 
   /* ++++++++++ Side Effects ++++++++++ */
   React.useEffect(() => {
-    if (lat && lng && !isLoading) {
-      doGetPlacesImages({ latitude: lat, longitude: lng })
+    if (mapData.lat && mapData.lng && !isLoading) {
+      doGetPlacesImages({ latitude: mapData.lat, longitude: mapData.lng })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lat, lng])
+  }, [mapData.lat, mapData.lng, mapData.zoom])
 
   React.useEffect(() => {
     if (!responseData || !responseData.data) return
-    initMap()
+    if (map && map.current) {
+      map.current
+        .removeLayer("points")
+        .removeSource("points")
+        .addSource("points", {
+          type: "geojson",
+          data: {
+            type: "FeatureCollection",
+            features: responseData.data,
+          },
+        })// Add a symbol layer
+        .addLayer({
+          id: "points",
+          type: "symbol",
+          source: "points",
+          layout: {
+            "icon-image": "custom-marker",
+            "icon-size": ['interpolate', ['linear'], ['zoom'], 10, 1, 15, 0.5, 20, 0.3],
+            // get the title name from the source's "title" property
+            "text-field": ["get", "name"],
+            "text-font": ["Open Sans Semibold", "Arial Unicode MS Bold"],
+            "text-offset": [0, 1.25],
+            "text-anchor": "top",
+          },
+        })
+    } else {
+      initMap()
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [responseData])
   /* ---------- Side Effects ---------- */
@@ -50,14 +79,17 @@ export default function Dashboard() {
     map.current = new mapboxgl.Map({
       container: 'map-container',
       style: "mapbox://styles/mapbox/streets-v12",
-      center: [lng, lat],
-      zoom: zoom,
+      center: [mapData.lng, mapData.lat],
+      zoom: mapData.zoom,
     }) as mapboxgl.Map;
 
     map.current.on("move", () => {
-      setLng(map.current.getCenter().lng.toFixed(4));
-      setLat(map.current.getCenter().lat.toFixed(4));
-      setZoom(map.current.getZoom().toFixed(2));
+      setMapData((prevState) => ({
+        ...prevState,
+        lng: map.current.getCenter().lng.toFixed(4),
+        lat: map.current.getCenter().lat.toFixed(4),
+        zoom: map.current.getZoom().toFixed(2)
+      }))
     });
 
     const coordinatesGeocoder = function (query: string): any | null {
@@ -66,6 +98,7 @@ export default function Dashboard() {
       const matches = query.match(
         /^[ ]*(?:Lat: )?(-?\d+\.?\d*)[, ]+(?:Lng: )?(-?\d+\.?\d*)[ ]*$/i
       );
+      console.log({ matches, query })
       if (!matches) {
         return null;
       }
@@ -74,10 +107,10 @@ export default function Dashboard() {
       const coord2 = Number(matches[2]);
       const geocodes = [];
       geocodes.push({
-        center: [coord1, coord2],
+        center: [coord2, coord1],// [long, lat]
         geometry: {
           type: 'Point',
-          coordinates: [coord1, coord2]
+          coordinates: [coord2, coord1] // [long, lat]
         },
         place_name: 'Lat: ' + coord1 + ' Lng: ' + coord2,
         place_type: ['coordinate'],
@@ -100,8 +133,11 @@ export default function Dashboard() {
     map.current.addControl(geocoder);
     geocoder.on('result', e => {
       console.log('geocoder.on', e.result.center);
-      setLng(e.result.center[0].toFixed(4));
-      setLat(e.result.center[1].toFixed(4));
+      setMapData((prevState) => ({
+        ...prevState,
+        lng: e.result.center[0].toFixed(4),
+        lat: e.result.center[1].toFixed(4)
+      }))
     });
 
     // Add navigation control (the +/- zoom buttons)
@@ -122,32 +158,31 @@ export default function Dashboard() {
           map.current.addImage("custom-marker", image,);
 
           // Add a GeoJSON source with multiple points
-          map.current.addSource("points", {
-            type: "geojson",
-            data: {
-              type: "FeatureCollection",
-              features: responseData.data,
-            },
-          });
-          // Add a symbol layer
-          map.current.addLayer({
-            id: "points",
-            type: "symbol",
-            source: "points",
-            layout: {
-              "icon-image": "custom-marker",
-              "icon-size": ['interpolate', ['linear'], ['zoom'], 10, 1, 15, 0.5, 20, 0.3],
-              // get the title name from the source's "title" property
-              "text-field": ["get", "name"],
-              "text-font": ["Open Sans Semibold", "Arial Unicode MS Bold"],
-              "text-offset": [0, 1.25],
-              "text-anchor": "top",
-            },
-          });
-
-          map.current.flyTo({
-            center: responseData.data[0].geometry.coordinates
-          });
+          map.current
+            .addSource("points", {
+              type: "geojson",
+              data: {
+                type: "FeatureCollection",
+                features: responseData.data,
+              },
+            })// Add a symbol layer
+            .addLayer({
+              id: "points",
+              type: "symbol",
+              source: "points",
+              layout: {
+                "icon-image": "custom-marker",
+                "icon-size": ['interpolate', ['linear'], ['zoom'], 10, 1, 15, 0.5, 20, 0.3],
+                // get the title name from the source's "title" property
+                "text-field": ["get", "name"],
+                "text-font": ["Open Sans Semibold", "Arial Unicode MS Bold"],
+                "text-offset": [0, 1.25],
+                "text-anchor": "top",
+              },
+            })
+            .flyTo({
+              center: responseData.data[0].geometry.coordinates
+            });
 
           // When a click event occurs near a marker icon, open a popup at the location of
           // the feature, with description HTML from its properties.
@@ -195,13 +230,13 @@ export default function Dashboard() {
 
   /* ++++++++++ Function Render Methods ++++++++++ */
   /* ---------- Function Render Methods ---------- */
-  // console.log({ isLoading, isError, responseData, })
+  console.log({ mapData, isLoading, isError, responseData, })
   return (
     <>
       <Box h='100vh'>
         <Box position='absolute' top={0} left={0} zIndex={10} m='4' p='1' color='#0096ff' backgroundColor='rgba(176, 147, 147, 0.4)'>
           <Heading size='lg' fontFamily="Source Sans Pro">Potters Map</Heading>
-          <Text fontSize='xs'>{isLoading ? 'Fetching places' : `${Number(lng).toFixed(2)}, ${Number(lat).toFixed(2)}`}</Text>
+          <Text fontSize='xs'>{isLoading ? 'Fetching places' : `${Number(mapData.lng).toFixed(2)}, ${Number(mapData.lat).toFixed(2)}`}</Text>
         </Box>
         <Box id="map-container" ref={mapContainer} />
       </Box>
